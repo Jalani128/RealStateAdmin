@@ -50,6 +50,17 @@ const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (member) {
       setFormData({
         name: member.name || "",
@@ -93,17 +104,39 @@ const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
     setUploading(true);
     setError("");
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-      setFormData((prev) => ({ ...prev, image: reader.result }));
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let { width, height } = img;
+      const maxDim = 400;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = (height / width) * maxDim;
+          width = maxDim;
+        } else {
+          width = (width / height) * maxDim;
+          height = maxDim;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressed = canvas.toDataURL("image/jpeg", 0.7);
+      if (compressed.length > 450000) {
+        setError("Image too large after compression. Please use a smaller image.");
+        setUploading(false);
+        return;
+      }
+      setImagePreview(compressed);
+      setFormData((prev) => ({ ...prev, image: compressed }));
       setUploading(false);
     };
-    reader.onerror = () => {
-      setError("Failed to read image");
+    img.onerror = () => {
+      setError("Failed to process image");
       setUploading(false);
     };
-    reader.readAsDataURL(file);
+    img.src = URL.createObjectURL(file);
   };
 
   const handleSubmit = async (e) => {
@@ -146,14 +179,14 @@ const TeamMemberModal = ({ isOpen, onClose, member, onSave }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 z-[100]"
+            className="fixed inset-0 bg-black/80 z-[100]"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -50 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[85vh] overflow-y-auto bg-white rounded-2xl shadow-2xl z-[101]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed inset-0 m-auto w-full max-w-2xl max-h-[85vh] overflow-y-auto bg-white rounded-2xl shadow-2xl z-[101]"
           >
             <div className="sticky top-0 bg-white border-b border-[#E6D5C3] px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-[#1C1B1A]">
