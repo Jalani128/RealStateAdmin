@@ -4,35 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-@import './styles/design-system.css';
+@import './design-system.css';
 
 @layer base {
-  :root {
-    --primary: #2E3192;
-    --primary-50: #F0F1FB;
-    --primary-100: #D7DBF5;
-    --primary-200: #BEC5EF;
-    --primary-300: #9BA5E5;
-    --primary-400: #7885DB;
-    --primary-500: #2E3192;
-    --primary-600: #2A2D82;
-    --primary-700: #1F2263;
-    --primary-800: #16174A;
-    --primary-900: #0E0E31;
-    
-    --secondary: #5A7FFF;
-    --success: #10B981;
-    --warning: #F59E0B;
-    --error: #EF4444;
-    --info: #3B82F6;
-    
-    --background: #FAFAFA;
-    --foreground: #141414;
-    --card: #FFFFFF;
-    --border: #E5E5E5;
-    --muted: #737373;
-  }
-
   html {
     scroll-behavior: smooth;
     font-family: "Manrope", sans-serif;
@@ -42,6 +16,11 @@
     @apply bg-white text-gray-900;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Code blocks */
+  code, pre {
+    @apply font-mono text-xs;
   }
 }
 
@@ -79,5 +58,12 @@
   select:disabled,
   textarea:disabled {
     @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    @apply hidden;
   }
 }
